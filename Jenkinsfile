@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven' // Update to match the actual Maven name in Global Tool Configuration
+        maven 'Maven' // Update this to match the Maven tool name in Global Tool Configuration
     }
 
     stages {
