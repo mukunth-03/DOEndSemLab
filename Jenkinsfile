@@ -6,7 +6,6 @@ pipeline {
             steps {
                 // Clone the Git repository
                 git url: 'https://github.com/mukunth-03/DOEndSemLab'
-'
             }
         }
         
