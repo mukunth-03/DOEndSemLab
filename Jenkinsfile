@@ -32,12 +32,12 @@ pipeline {
         always {
             // Cleanup Docker containers and images after pipeline completion
             script {
-                //def container = docker.image("my-app:latest")
-                //container.stop()
-                //container.remove()
+                def container = docker.image("my-app:latest")
+                container.stop()
+                container.remove()
                 dockerImage?.stop()
                 dockerImage?.remove()
-               // docker.image("my-app:latest").remove()
+               docker.image("my-app:latest").remove()
             }
         }
     }
