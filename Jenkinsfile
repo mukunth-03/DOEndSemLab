@@ -2,46 +2,45 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven 3.x' // Specify the Maven version configured in Jenkins global tools
+        maven 'Maven' // Update to match the actual Maven name in Global Tool Configuration
     }
 
     stages {
         stage('Clone Repository') {
             steps {
+                // Clone the Git repository
                 git branch: 'main', url: 'https://github.com/mukunth-03/DOEndSemLab'
             }
         }
 
-        stage('Maven Build - Test') {
+        stage('Build with Maven') {
             steps {
-                script {
-                    // Run Maven 'test' phase to execute unit tests
-                    sh 'mvn clean test'
-                }
+                // Run the Maven build (clean and package)
+                sh 'mvn clean package -DskipTests'
             }
         }
 
-        stage('Maven Build - Package') {
+        stage('Run Tests') {
             steps {
-                script {
-                    // Run Maven 'package' phase to build the application JAR
-                    sh 'mvn package'
-                }
+                // Run the Maven test phase
+                sh 'mvn test'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    dockerImage = docker.build("my-app:latest")
+                    // Build the Docker image using the multi-stage Dockerfile
+                    docker.build("my-app:latest")
                 }
             }
         }
-        
+
         stage('Deploy Docker Container') {
             steps {
                 script {
-                    container = dockerImage.run("-p 8081:8080") // Map host port 8081 to container port 8080
+                    // Run the Docker container with port mapping
+                    docker.image("my-app:latest").run("-p 8080:8080")
                 }
             }
         }
@@ -49,19 +48,11 @@ pipeline {
 
     post {
         always {
+            // Cleanup Docker containers and images after pipeline completion
             script {
-                try {
-                    container.stop()
-                    container.remove()
-                } catch (Exception e) {
-                    echo "Container cleanup failed: ${e}"
-                }
-
-                try {
-                    dockerImage.remove()
-                } catch (Exception e) {
-                    echo "Image cleanup failed: ${e}"
-                }
+                def container = docker.image("my-app:latest")
+                container.stop()
+                container.remove()
             }
         }
     }
