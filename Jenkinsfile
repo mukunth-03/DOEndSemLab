@@ -5,7 +5,7 @@ pipeline {
         stage('Clone Repository') {
             steps {
                 // Clone the Git repository
-                git url: 'https://github.com/mukunth-03/DOEndSemLab'
+                git branch: 'main', url: 'https://github.com/mukunth-03/DOEndSemLab'
             }
         }
         
