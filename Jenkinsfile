@@ -12,8 +12,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image using the multi-stage Dockerfile
-                    docker.build("my-app:latest")
+                    // Build the Docker image using the multi-stage Dockerfile and store it in a variable
+                    dockerImage = docker.build("my-app:latest")
                 }
             }
         }
@@ -21,8 +21,8 @@ pipeline {
         stage('Deploy Docker Container') {
             steps {
                 script {
-                    // Run the Docker container with port mapping
-                    docker.image("my-app:latest").run("-p 8080:8080")
+                    // Run the Docker container with port mapping and store container ID
+                    container = dockerImage.run("-p 8081:8080") // Change 8081 to 8080 if port 8080 is free on host
                 }
             }
         }
@@ -32,12 +32,18 @@ pipeline {
         always {
             // Cleanup Docker containers and images after pipeline completion
             script {
-                def container = docker.image("my-app:latest")
-                container.stop()
-                container.remove()
-                dockerImage?.stop()
-                dockerImage?.remove()
-               docker.image("my-app:latest").remove()
+                try {
+                    container.stop()
+                    container.remove()
+                } catch (Exception e) {
+                    echo "Container cleanup failed: ${e}"
+                }
+                
+                try {
+                    dockerImage.remove()
+                } catch (Exception e) {
+                    echo "Image cleanup failed: ${e}"
+                }
             }
         }
     }
